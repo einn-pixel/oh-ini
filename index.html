@@ -3,70 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChiFind</title>
-
+<title>ChiFind Barcelona</title>
 <style>
-body{
-font-family: Arial, sans-serif;
-background:#0f172a;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
 }
-
-.container{
-text-align:center;
+.container {
+    max-width: 800px;
+    width: 100%;
 }
-
-h1{
-font-size:50px;
-margin-bottom:20px;
-color:#38bdf8;
+h1 {
+    color: #38bdf8;
+    text-align: center;
 }
-
-input{
-padding:12px;
-width:300px;
-border-radius:25px;
-border:none;
-outline:none;
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
 }
-
-button{
-padding:12px 20px;
-border:none;
-border-radius:25px;
-background:#38bdf8;
-color:white;
-cursor:pointer;
-margin-left:10px;
+input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
 }
-
-button:hover{
-background:#0ea5e9;
+button {
+    padding: 12px 25px;
+    background: #38bdf8;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+.result-card {
+    background: #1e293b;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border-left: 4px solid #38bdf8;
+}
+.result-card h4 {
+    margin: 0 0 10px 0;
+    color: #38bdf8;
+}
+.result-card p {
+    margin: 5px 0;
+    color: #cbd5e1;
+}
+.loading, .error, .no-results {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+}
+.error {
+    background: #991b1b;
+    color: #fee2e2;
+    border-radius: 10px;
 }
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
-
-<h1> ChiFind</h1>
-
-<form action="https://www.google.com/search" method="GET">
-
-<input type="text" name="q" placeholder="Cari apa saja..." required>
-
-<button type="submit">Search</button>
-
-</form>
-
+    <h1>⚽ ChiFind Barcelona</h1>
+    
+    <form id="searchForm" class="search-box">
+        <input type="text" id="searchInput" placeholder="Cari di Barcelona..." required>
+        <button type="submit">Cari</button>
+    </form>
+    
+    <div id="result"></div>
 </div>
 
+<script>
+const searchForm = document.getElementById('searchForm');
+const searchInput = document.getElementById('searchInput');
+const resultDiv = document.getElementById('result');
+
+searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const keyword = searchInput.value.trim();
+    if (!keyword) return alert('Masukkan kata kunci');
+    
+    resultDiv.innerHTML = '<div class="loading">Mencari...</div>';
+    
+    try {
+        const response = await fetch(`http://localhost:5000/search?q=${encodeURIComponent(keyword)}`);
+        const data = await response.json();
+        
+        if (data.success && data.results.length > 0) {
+            let html = '';
+            data.results.forEach(item => {
+                html += `
+                    <div class="result-card">
+                        <h4>${item.name}</h4>
+                        <p><strong>${item.category}</strong></p>
+                        <p>${item.description}</p>
+                    </div>
+                `;
+            });
+            resultDiv.innerHTML = html;
+        } else {
+            resultDiv.innerHTML = '<div class="no-results">Tidak ada hasil</div>';
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div class="error">Gagal terhubung ke backend. Jalankan backend dulu!</div>';
+    }
+});
+</script>
 </body>
 </html>
