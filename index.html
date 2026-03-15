@@ -94,7 +94,7 @@ searchForm.addEventListener('submit', async (e) => {
     resultDiv.innerHTML = '<div class="loading">Mencari...</div>';
     
     try {
-        const response = await fetch(`http://localhost:5000/search?q=${encodeURIComponent(keyword)}`);
+    const response = await fetch(`https://barcelona-search-backend.vercel.app/search?q=${encodeURIComponent(keyword)}`);
         const data = await response.json();
         
         if (data.success && data.results.length > 0) {
